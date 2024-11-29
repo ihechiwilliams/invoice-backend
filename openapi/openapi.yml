@@ -1,77 +1,95 @@
-openapi: 3.1.0
+openapi: 3.0.0
 info:
   title: Invoice Management API
-  contact
   version: 1.0.0
   description: API for managing invoices, customers, and activities.
-
+  contact:
+    email: charlesclinton2003@gmail.com
 servers:
   - url: https://api.invoiceapp.com
     description: Production server
   - url: https://staging.api.invoiceapp.com
     description: Staging server
-
 tags:
-  - name: Invoices
+  - name: invoices
     description: Operations related to invoices
   - name: Customers
     description: Manage customer data
   - name: Activities
     description: Track invoice activities
-
 paths:
   /v1/invoices:
     get:
       summary: List all invoices
-      tags:
-        - Invoices
+      description: List all invoices
+      operationId: v1-Get-Invoices
       parameters:
-        - name: status
-          in: query
+        - in: query
+          name: data
           description: Filter invoices by status (paid, overdue, draft, etc.)
-          required: false
+          style: deepObject
           schema:
-            type: string
-        - name: date
-          in: query
-          description: Filter invoices by date range
-          required: false
-          schema:
-            type: string
-            format: date
+            type: object
+            properties:
+              filters:
+                $ref: '#/components/schemas/InvoiceFilters'
       responses:
         '200':
-          description: A list of invoices
+          $ref: '#/components/responses/InvoicesResponse'
+        '400':
+          description: Bad Request
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Invoice'
-
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+        - invoices
     post:
       summary: Create a new invoice
-      tags:
-        - Invoices
+      description: Endpoint to create invoice
+      operationId: v1-Create-Invoice
       requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/NewInvoice'
+        $ref: '#/components/requestBodies/CreateInvoiceRequestBody'
       responses:
         '201':
-          description: Invoice created successfully
+          $ref: '#/components/responses/InvoiceResponse'
+        '400':
+          description: Bad Request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Invoice'
-
-  /invoices/{invoiceId}:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+        - invoices
+  '/v1/invoices/{invoiceId}':
     get:
       summary: Get details of a specific invoice
-      tags:
-        - Invoices
+      description: Get invoice by the id
+      operationId: v1-Get-Invoice
       parameters:
         - name: invoiceId
           in: path
@@ -79,18 +97,36 @@ paths:
           description: ID of the invoice
           schema:
             type: string
+            format: uuid
+            example: ddab76f7-f979-4a1f-97a8-7175aeac962d
       responses:
         '200':
-          description: Invoice details
+          $ref: '#/components/responses/InvoiceResponse'
+        '400':
+          description: Bad Request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Invoice'
-
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+        - invoices
     patch:
       summary: Update an invoice
+      operationId: v1-Update-Invoice
       tags:
-        - Invoices
+        - invoices
       parameters:
         - name: invoiceId
           in: path
@@ -107,11 +143,30 @@ paths:
       responses:
         '200':
           description: Invoice updated successfully
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
     delete:
       summary: Delete an invoice
+      operationId: v1-Delete-Invoice
       tags:
-        - Invoices
+        - invoices
       parameters:
         - name: invoiceId
           in: path
@@ -122,43 +177,92 @@ paths:
       responses:
         '204':
           description: Invoice deleted successfully
-
-  /customers:
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/customers:
     get:
       summary: List all customers
+      operationId: v1-Get-Customers
+      parameters:
+        - in: query
+          name: data
+          style: deepObject
+          schema:
+            type: object
+            properties:
+              filters:
+                $ref: '#/components/schemas/CustomerFilters'
       tags:
         - Customers
       responses:
         '200':
-          description: A list of customers
+          $ref: '#/components/responses/CustomersResponse'
+        '400':
+          description: Bad Request
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Customer'
-
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
     post:
       summary: Create a new customer
+      operationId: v1-Create-Customer
       tags:
         - Customers
       requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/NewCustomer'
+        $ref: '#/components/requestBodies/CreateCustomerRequestBody'
       responses:
         '201':
-          description: Customer created successfully
+          $ref: '#/components/responses/CustomerResponse'
+        '400':
+          description: Bad Request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Customer'
-
-  /activities:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/activities:
     get:
       summary: Get recent activities
+      operationId: v1-Get-Activities
       tags:
         - Activities
       responses:
@@ -170,23 +274,72 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Activity'
-
 components:
   schemas:
-    InvoicesResponse:
-      description: Example response
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              data:
-                type: array
-                items:
-                  $ref: '#/components/schemas/InvoiceData'
-            required:
-              - data
-    InvoiceData:
+    Error:
+      type: object
+      x-examples:
+        Example 1:
+          title: Server error
+          detail: 'Service temporarily unavailable, retry later'
+          status: 500
+          code: server_error
+          meta:
+            caused_by: ClassName
+      properties:
+        title:
+          type: string
+        detail:
+          type: string
+        status:
+          type: integer
+        code:
+          type: string
+        meta:
+          type: object
+      required:
+        - title
+        - detail
+        - status
+        - code
+    ErrorResponse:
+      title: ErrorResponse
+      type: object
+      description: Response that contains the list of errors
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Error'
+      required:
+        - errors
+    InvoiceRequestBodyData:
+      type: object
+      properties:
+        sender:
+          type: string
+        customer:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Item'
+        dueDate:
+          type: string
+          format: date
+      required:
+        - sender
+        - customer
+        - items
+        - dueDate
+    InvoiceFilters:
+      type: object
+      properties:
+        customer_id:
+          type: array
+          items:
+            type: string
+    InvoiceResponseData:
       type: object
       properties:
         id:
@@ -209,22 +362,6 @@ components:
         totalAmount:
           type: number
           format: float
-
-    NewInvoice:
-      type: object
-      properties:
-        sender:
-          type: string
-        customer:
-          type: string
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Item'
-        dueDate:
-          type: string
-          format: date
-
     UpdateInvoice:
       type: object
       properties:
@@ -234,7 +371,6 @@ components:
         dueDate:
           type: string
           format: date
-
     Item:
       type: object
       properties:
@@ -245,8 +381,14 @@ components:
         price:
           type: number
           format: float
-
-    Customer:
+    CustomerFilters:
+      type: object
+      properties:
+        user_id:
+          type: array
+          items:
+            type: string
+    CustomerResponseData:
       type: object
       properties:
         id:
@@ -258,8 +400,12 @@ components:
           type: string
         phone:
           type: string
-
-    NewCustomer:
+      required:
+        - id
+        - name
+        - email
+        - phone
+    CustomerRequestBodyData:
       type: object
       properties:
         name:
@@ -268,7 +414,6 @@ components:
           type: string
         phone:
           type: string
-
     Activity:
       type: object
       properties:
@@ -282,3 +427,75 @@ components:
         createdAt:
           type: string
           format: date-time
+  responses:
+    InvoiceResponse:
+      description: Example response
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                $ref: '#/components/schemas/InvoiceResponseData'
+            required:
+              - data
+    InvoicesResponse:
+      description: Example response
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: '#/components/schemas/InvoiceResponseData'
+            required:
+              - data
+    CustomerResponse:
+      description: example response
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                $ref: '#/components/schemas/CustomerResponseData'
+            required:
+              - data
+    CustomersResponse:
+      description: customers response
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CustomerResponseData'
+            required:
+              - data
+  requestBodies:
+    CreateInvoiceRequestBody:
+      description: Create Invoice Request Body
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                $ref: '#/components/schemas/InvoiceRequestBodyData'
+            required:
+              - data
+    CreateCustomerRequestBody:
+      description: Create Customer Request Body
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                $ref: '#/components/schemas/CustomerRequestBodyData'
+            required:
+              - data

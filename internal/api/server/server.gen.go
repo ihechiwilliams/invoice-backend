@@ -20,11 +20,11 @@ import (
 	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
-// Defines values for InvoiceStatus.
+// Defines values for InvoiceResponseDataStatus.
 const (
-	InvoiceStatusDraft   InvoiceStatus = "draft"
-	InvoiceStatusOverdue InvoiceStatus = "overdue"
-	InvoiceStatusPaid    InvoiceStatus = "paid"
+	InvoiceResponseDataStatusDraft   InvoiceResponseDataStatus = "draft"
+	InvoiceResponseDataStatusOverdue InvoiceResponseDataStatus = "overdue"
+	InvoiceResponseDataStatusPaid    InvoiceResponseDataStatus = "paid"
 )
 
 // Defines values for UpdateInvoiceStatus.
@@ -42,48 +42,72 @@ type Activity struct {
 	Type        *string             `json:"type,omitempty"`
 }
 
-// Customer defines model for Customer.
-type Customer struct {
-	Email *string             `json:"email,omitempty"`
-	Id    *openapi_types.UUID `json:"id,omitempty"`
-	Name  *string             `json:"name,omitempty"`
-	Phone *string             `json:"phone,omitempty"`
+// CustomerFilters defines model for CustomerFilters.
+type CustomerFilters struct {
+	UserId *[]string `json:"user_id,omitempty"`
 }
 
-// Invoice defines model for Invoice.
-type Invoice struct {
-	Customer    *string             `json:"customer,omitempty"`
-	DueDate     *openapi_types.Date `json:"dueDate,omitempty"`
-	Id          *openapi_types.UUID `json:"id,omitempty"`
-	Items       *[]Item             `json:"items,omitempty"`
-	Sender      *string             `json:"sender,omitempty"`
-	Status      *InvoiceStatus      `json:"status,omitempty"`
-	TotalAmount *float32            `json:"totalAmount,omitempty"`
+// CustomerRequestBodyData defines model for CustomerRequestBodyData.
+type CustomerRequestBodyData struct {
+	Email *string `json:"email,omitempty"`
+	Name  *string `json:"name,omitempty"`
+	Phone *string `json:"phone,omitempty"`
 }
 
-// InvoiceStatus defines model for Invoice.Status.
-type InvoiceStatus string
+// CustomerResponseData defines model for CustomerResponseData.
+type CustomerResponseData struct {
+	Email string             `json:"email"`
+	Id    openapi_types.UUID `json:"id"`
+	Name  string             `json:"name"`
+	Phone string             `json:"phone"`
+}
+
+// Error defines model for Error.
+type Error struct {
+	Code   string                  `json:"code"`
+	Detail string                  `json:"detail"`
+	Meta   *map[string]interface{} `json:"meta,omitempty"`
+	Status int                     `json:"status"`
+	Title  string                  `json:"title"`
+}
+
+// ErrorResponse Response that contains the list of errors
+type ErrorResponse struct {
+	Errors []Error `json:"errors"`
+}
+
+// InvoiceFilters defines model for InvoiceFilters.
+type InvoiceFilters struct {
+	CustomerId *[]string `json:"customer_id,omitempty"`
+}
+
+// InvoiceRequestBodyData defines model for InvoiceRequestBodyData.
+type InvoiceRequestBodyData struct {
+	Customer string             `json:"customer"`
+	DueDate  openapi_types.Date `json:"dueDate"`
+	Items    []Item             `json:"items"`
+	Sender   string             `json:"sender"`
+}
+
+// InvoiceResponseData defines model for InvoiceResponseData.
+type InvoiceResponseData struct {
+	Customer    *string                    `json:"customer,omitempty"`
+	DueDate     *openapi_types.Date        `json:"dueDate,omitempty"`
+	Id          *openapi_types.UUID        `json:"id,omitempty"`
+	Items       *[]Item                    `json:"items,omitempty"`
+	Sender      *string                    `json:"sender,omitempty"`
+	Status      *InvoiceResponseDataStatus `json:"status,omitempty"`
+	TotalAmount *float32                   `json:"totalAmount,omitempty"`
+}
+
+// InvoiceResponseDataStatus defines model for InvoiceResponseData.Status.
+type InvoiceResponseDataStatus string
 
 // Item defines model for Item.
 type Item struct {
 	Description *string  `json:"description,omitempty"`
 	Price       *float32 `json:"price,omitempty"`
 	Quantity    *int     `json:"quantity,omitempty"`
-}
-
-// NewCustomer defines model for NewCustomer.
-type NewCustomer struct {
-	Email *string `json:"email,omitempty"`
-	Name  *string `json:"name,omitempty"`
-	Phone *string `json:"phone,omitempty"`
-}
-
-// NewInvoice defines model for NewInvoice.
-type NewInvoice struct {
-	Customer *string             `json:"customer,omitempty"`
-	DueDate  *openapi_types.Date `json:"dueDate,omitempty"`
-	Items    *[]Item             `json:"items,omitempty"`
-	Sender   *string             `json:"sender,omitempty"`
 }
 
 // UpdateInvoice defines model for UpdateInvoice.
@@ -95,50 +119,96 @@ type UpdateInvoice struct {
 // UpdateInvoiceStatus defines model for UpdateInvoice.Status.
 type UpdateInvoiceStatus string
 
-// GetInvoicesParams defines parameters for GetInvoices.
-type GetInvoicesParams struct {
-	// Status Filter invoices by status (paid, overdue, draft, etc.)
-	Status *string `form:"status,omitempty" json:"status,omitempty"`
-
-	// Date Filter invoices by date range
-	Date *openapi_types.Date `form:"date,omitempty" json:"date,omitempty"`
+// CustomerResponse defines model for CustomerResponse.
+type CustomerResponse struct {
+	Data CustomerResponseData `json:"data"`
 }
 
-// PostCustomersJSONRequestBody defines body for PostCustomers for application/json ContentType.
-type PostCustomersJSONRequestBody = NewCustomer
+// CustomersResponse defines model for CustomersResponse.
+type CustomersResponse struct {
+	Data []CustomerResponseData `json:"data"`
+}
 
-// PostInvoicesJSONRequestBody defines body for PostInvoices for application/json ContentType.
-type PostInvoicesJSONRequestBody = NewInvoice
+// InvoiceResponse defines model for InvoiceResponse.
+type InvoiceResponse struct {
+	Data InvoiceResponseData `json:"data"`
+}
 
-// PatchInvoicesInvoiceIdJSONRequestBody defines body for PatchInvoicesInvoiceId for application/json ContentType.
-type PatchInvoicesInvoiceIdJSONRequestBody = UpdateInvoice
+// InvoicesResponse defines model for InvoicesResponse.
+type InvoicesResponse struct {
+	Data []InvoiceResponseData `json:"data"`
+}
+
+// CreateCustomerRequestBody defines model for CreateCustomerRequestBody.
+type CreateCustomerRequestBody struct {
+	Data CustomerRequestBodyData `json:"data"`
+}
+
+// CreateInvoiceRequestBody defines model for CreateInvoiceRequestBody.
+type CreateInvoiceRequestBody struct {
+	Data InvoiceRequestBodyData `json:"data"`
+}
+
+// V1GetCustomersParams defines parameters for V1GetCustomers.
+type V1GetCustomersParams struct {
+	Data *struct {
+		Filters *CustomerFilters `json:"filters,omitempty"`
+	} `json:"data,omitempty"`
+}
+
+// V1CreateCustomerJSONBody defines parameters for V1CreateCustomer.
+type V1CreateCustomerJSONBody struct {
+	Data CustomerRequestBodyData `json:"data"`
+}
+
+// V1GetInvoicesParams defines parameters for V1GetInvoices.
+type V1GetInvoicesParams struct {
+	// Data Filter invoices by status (paid, overdue, draft, etc.)
+	Data *struct {
+		Filters *InvoiceFilters `json:"filters,omitempty"`
+	} `json:"data,omitempty"`
+}
+
+// V1CreateInvoiceJSONBody defines parameters for V1CreateInvoice.
+type V1CreateInvoiceJSONBody struct {
+	Data InvoiceRequestBodyData `json:"data"`
+}
+
+// V1CreateCustomerJSONRequestBody defines body for V1CreateCustomer for application/json ContentType.
+type V1CreateCustomerJSONRequestBody V1CreateCustomerJSONBody
+
+// V1CreateInvoiceJSONRequestBody defines body for V1CreateInvoice for application/json ContentType.
+type V1CreateInvoiceJSONRequestBody V1CreateInvoiceJSONBody
+
+// V1UpdateInvoiceJSONRequestBody defines body for V1UpdateInvoice for application/json ContentType.
+type V1UpdateInvoiceJSONRequestBody = UpdateInvoice
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 	// Get recent activities
-	// (GET /activities)
-	GetActivities(w http.ResponseWriter, r *http.Request)
+	// (GET /v1/activities)
+	V1GetActivities(w http.ResponseWriter, r *http.Request)
 	// List all customers
-	// (GET /customers)
-	GetCustomers(w http.ResponseWriter, r *http.Request)
+	// (GET /v1/customers)
+	V1GetCustomers(w http.ResponseWriter, r *http.Request, params V1GetCustomersParams)
 	// Create a new customer
-	// (POST /customers)
-	PostCustomers(w http.ResponseWriter, r *http.Request)
+	// (POST /v1/customers)
+	V1CreateCustomer(w http.ResponseWriter, r *http.Request)
 	// List all invoices
-	// (GET /invoices)
-	GetInvoices(w http.ResponseWriter, r *http.Request, params GetInvoicesParams)
+	// (GET /v1/invoices)
+	V1GetInvoices(w http.ResponseWriter, r *http.Request, params V1GetInvoicesParams)
 	// Create a new invoice
-	// (POST /invoices)
-	PostInvoices(w http.ResponseWriter, r *http.Request)
+	// (POST /v1/invoices)
+	V1CreateInvoice(w http.ResponseWriter, r *http.Request)
 	// Delete an invoice
-	// (DELETE /invoices/{invoiceId})
-	DeleteInvoicesInvoiceId(w http.ResponseWriter, r *http.Request, invoiceId string)
+	// (DELETE /v1/invoices/{invoiceId})
+	V1DeleteInvoice(w http.ResponseWriter, r *http.Request, invoiceId string)
 	// Get details of a specific invoice
-	// (GET /invoices/{invoiceId})
-	GetInvoicesInvoiceId(w http.ResponseWriter, r *http.Request, invoiceId string)
+	// (GET /v1/invoices/{invoiceId})
+	V1GetInvoice(w http.ResponseWriter, r *http.Request, invoiceId openapi_types.UUID)
 	// Update an invoice
-	// (PATCH /invoices/{invoiceId})
-	PatchInvoicesInvoiceId(w http.ResponseWriter, r *http.Request, invoiceId string)
+	// (PATCH /v1/invoices/{invoiceId})
+	V1UpdateInvoice(w http.ResponseWriter, r *http.Request, invoiceId string)
 }
 
 // Unimplemented server implementation that returns http.StatusNotImplemented for each endpoint.
@@ -146,50 +216,50 @@ type ServerInterface interface {
 type Unimplemented struct{}
 
 // Get recent activities
-// (GET /activities)
-func (_ Unimplemented) GetActivities(w http.ResponseWriter, r *http.Request) {
+// (GET /v1/activities)
+func (_ Unimplemented) V1GetActivities(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
 // List all customers
-// (GET /customers)
-func (_ Unimplemented) GetCustomers(w http.ResponseWriter, r *http.Request) {
+// (GET /v1/customers)
+func (_ Unimplemented) V1GetCustomers(w http.ResponseWriter, r *http.Request, params V1GetCustomersParams) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
 // Create a new customer
-// (POST /customers)
-func (_ Unimplemented) PostCustomers(w http.ResponseWriter, r *http.Request) {
+// (POST /v1/customers)
+func (_ Unimplemented) V1CreateCustomer(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
 // List all invoices
-// (GET /invoices)
-func (_ Unimplemented) GetInvoices(w http.ResponseWriter, r *http.Request, params GetInvoicesParams) {
+// (GET /v1/invoices)
+func (_ Unimplemented) V1GetInvoices(w http.ResponseWriter, r *http.Request, params V1GetInvoicesParams) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
 // Create a new invoice
-// (POST /invoices)
-func (_ Unimplemented) PostInvoices(w http.ResponseWriter, r *http.Request) {
+// (POST /v1/invoices)
+func (_ Unimplemented) V1CreateInvoice(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
 // Delete an invoice
-// (DELETE /invoices/{invoiceId})
-func (_ Unimplemented) DeleteInvoicesInvoiceId(w http.ResponseWriter, r *http.Request, invoiceId string) {
+// (DELETE /v1/invoices/{invoiceId})
+func (_ Unimplemented) V1DeleteInvoice(w http.ResponseWriter, r *http.Request, invoiceId string) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
 // Get details of a specific invoice
-// (GET /invoices/{invoiceId})
-func (_ Unimplemented) GetInvoicesInvoiceId(w http.ResponseWriter, r *http.Request, invoiceId string) {
+// (GET /v1/invoices/{invoiceId})
+func (_ Unimplemented) V1GetInvoice(w http.ResponseWriter, r *http.Request, invoiceId openapi_types.UUID) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
 // Update an invoice
-// (PATCH /invoices/{invoiceId})
-func (_ Unimplemented) PatchInvoicesInvoiceId(w http.ResponseWriter, r *http.Request, invoiceId string) {
+// (PATCH /v1/invoices/{invoiceId})
+func (_ Unimplemented) V1UpdateInvoice(w http.ResponseWriter, r *http.Request, invoiceId string) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -202,12 +272,12 @@ type ServerInterfaceWrapper struct {
 
 type MiddlewareFunc func(http.Handler) http.Handler
 
-// GetActivities operation middleware
-func (siw *ServerInterfaceWrapper) GetActivities(w http.ResponseWriter, r *http.Request) {
+// V1GetActivities operation middleware
+func (siw *ServerInterfaceWrapper) V1GetActivities(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetActivities(w, r)
+		siw.Handler.V1GetActivities(w, r)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -217,63 +287,25 @@ func (siw *ServerInterfaceWrapper) GetActivities(w http.ResponseWriter, r *http.
 	handler.ServeHTTP(w, r.WithContext(ctx))
 }
 
-// GetCustomers operation middleware
-func (siw *ServerInterfaceWrapper) GetCustomers(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetCustomers(w, r)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r.WithContext(ctx))
-}
-
-// PostCustomers operation middleware
-func (siw *ServerInterfaceWrapper) PostCustomers(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.PostCustomers(w, r)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r.WithContext(ctx))
-}
-
-// GetInvoices operation middleware
-func (siw *ServerInterfaceWrapper) GetInvoices(w http.ResponseWriter, r *http.Request) {
+// V1GetCustomers operation middleware
+func (siw *ServerInterfaceWrapper) V1GetCustomers(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	var err error
 
 	// Parameter object where we will unmarshal all parameters from the context
-	var params GetInvoicesParams
+	var params V1GetCustomersParams
 
-	// ------------- Optional query parameter "status" -------------
+	// ------------- Optional query parameter "data" -------------
 
-	err = runtime.BindQueryParameter("form", true, false, "status", r.URL.Query(), &params.Status)
+	err = runtime.BindQueryParameter("deepObject", true, false, "data", r.URL.Query(), &params.Data)
 	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "status", Err: err})
-		return
-	}
-
-	// ------------- Optional query parameter "date" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "date", r.URL.Query(), &params.Date)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "date", Err: err})
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "data", Err: err})
 		return
 	}
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetInvoices(w, r, params)
+		siw.Handler.V1GetCustomers(w, r, params)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -283,12 +315,12 @@ func (siw *ServerInterfaceWrapper) GetInvoices(w http.ResponseWriter, r *http.Re
 	handler.ServeHTTP(w, r.WithContext(ctx))
 }
 
-// PostInvoices operation middleware
-func (siw *ServerInterfaceWrapper) PostInvoices(w http.ResponseWriter, r *http.Request) {
+// V1CreateCustomer operation middleware
+func (siw *ServerInterfaceWrapper) V1CreateCustomer(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.PostInvoices(w, r)
+		siw.Handler.V1CreateCustomer(w, r)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -298,8 +330,51 @@ func (siw *ServerInterfaceWrapper) PostInvoices(w http.ResponseWriter, r *http.R
 	handler.ServeHTTP(w, r.WithContext(ctx))
 }
 
-// DeleteInvoicesInvoiceId operation middleware
-func (siw *ServerInterfaceWrapper) DeleteInvoicesInvoiceId(w http.ResponseWriter, r *http.Request) {
+// V1GetInvoices operation middleware
+func (siw *ServerInterfaceWrapper) V1GetInvoices(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params V1GetInvoicesParams
+
+	// ------------- Optional query parameter "data" -------------
+
+	err = runtime.BindQueryParameter("deepObject", true, false, "data", r.URL.Query(), &params.Data)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "data", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.V1GetInvoices(w, r, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// V1CreateInvoice operation middleware
+func (siw *ServerInterfaceWrapper) V1CreateInvoice(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.V1CreateInvoice(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// V1DeleteInvoice operation middleware
+func (siw *ServerInterfaceWrapper) V1DeleteInvoice(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	var err error
@@ -314,7 +389,7 @@ func (siw *ServerInterfaceWrapper) DeleteInvoicesInvoiceId(w http.ResponseWriter
 	}
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.DeleteInvoicesInvoiceId(w, r, invoiceId)
+		siw.Handler.V1DeleteInvoice(w, r, invoiceId)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -324,8 +399,34 @@ func (siw *ServerInterfaceWrapper) DeleteInvoicesInvoiceId(w http.ResponseWriter
 	handler.ServeHTTP(w, r.WithContext(ctx))
 }
 
-// GetInvoicesInvoiceId operation middleware
-func (siw *ServerInterfaceWrapper) GetInvoicesInvoiceId(w http.ResponseWriter, r *http.Request) {
+// V1GetInvoice operation middleware
+func (siw *ServerInterfaceWrapper) V1GetInvoice(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "invoiceId" -------------
+	var invoiceId openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithOptions("simple", "invoiceId", chi.URLParam(r, "invoiceId"), &invoiceId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "invoiceId", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.V1GetInvoice(w, r, invoiceId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// V1UpdateInvoice operation middleware
+func (siw *ServerInterfaceWrapper) V1UpdateInvoice(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	var err error
@@ -340,33 +441,7 @@ func (siw *ServerInterfaceWrapper) GetInvoicesInvoiceId(w http.ResponseWriter, r
 	}
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetInvoicesInvoiceId(w, r, invoiceId)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r.WithContext(ctx))
-}
-
-// PatchInvoicesInvoiceId operation middleware
-func (siw *ServerInterfaceWrapper) PatchInvoicesInvoiceId(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	var err error
-
-	// ------------- Path parameter "invoiceId" -------------
-	var invoiceId string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "invoiceId", chi.URLParam(r, "invoiceId"), &invoiceId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "invoiceId", Err: err})
-		return
-	}
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.PatchInvoicesInvoiceId(w, r, invoiceId)
+		siw.Handler.V1UpdateInvoice(w, r, invoiceId)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -490,28 +565,28 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	}
 
 	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/activities", wrapper.GetActivities)
+		r.Get(options.BaseURL+"/v1/activities", wrapper.V1GetActivities)
 	})
 	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/customers", wrapper.GetCustomers)
+		r.Get(options.BaseURL+"/v1/customers", wrapper.V1GetCustomers)
 	})
 	r.Group(func(r chi.Router) {
-		r.Post(options.BaseURL+"/customers", wrapper.PostCustomers)
+		r.Post(options.BaseURL+"/v1/customers", wrapper.V1CreateCustomer)
 	})
 	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/invoices", wrapper.GetInvoices)
+		r.Get(options.BaseURL+"/v1/invoices", wrapper.V1GetInvoices)
 	})
 	r.Group(func(r chi.Router) {
-		r.Post(options.BaseURL+"/invoices", wrapper.PostInvoices)
+		r.Post(options.BaseURL+"/v1/invoices", wrapper.V1CreateInvoice)
 	})
 	r.Group(func(r chi.Router) {
-		r.Delete(options.BaseURL+"/invoices/{invoiceId}", wrapper.DeleteInvoicesInvoiceId)
+		r.Delete(options.BaseURL+"/v1/invoices/{invoiceId}", wrapper.V1DeleteInvoice)
 	})
 	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/invoices/{invoiceId}", wrapper.GetInvoicesInvoiceId)
+		r.Get(options.BaseURL+"/v1/invoices/{invoiceId}", wrapper.V1GetInvoice)
 	})
 	r.Group(func(r chi.Router) {
-		r.Patch(options.BaseURL+"/invoices/{invoiceId}", wrapper.PatchInvoicesInvoiceId)
+		r.Patch(options.BaseURL+"/v1/invoices/{invoiceId}", wrapper.V1UpdateInvoice)
 	})
 
 	return r
@@ -520,23 +595,33 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"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",
+	"d+1gUyImAAA=",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

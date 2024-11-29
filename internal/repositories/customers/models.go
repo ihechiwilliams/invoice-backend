@@ -17,3 +17,7 @@ type Customer struct {
 	UpdatedAt time.Time      `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `gorm:"index" json:"deleted_at"`
 }
+
+type CustomerDBFilter struct {
+	UserID []string `json:"user_id"`
+}

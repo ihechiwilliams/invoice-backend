@@ -1,25 +1,26 @@
 package customers
 
 import (
+	"context"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 type Repository interface {
 	// CreateCustomer Create a new customer
-	CreateCustomer(customer *Customer) error
+	CreateCustomer(ctx context.Context, customer *Customer) error
 
 	// ListCustomers Retrieve all customers
-	ListCustomers(limit, offset int) ([]Customer, error)
+	ListCustomers(ctx context.Context, filters *CustomerDBFilter) ([]*Customer, error)
 
 	// GetCustomerByID Retrieve a customer by ID
-	GetCustomerByID(customerID uuid.UUID) (*Customer, error)
+	GetCustomerByID(ctx context.Context, customerID uuid.UUID) (*Customer, error)
 
 	// UpdateCustomer Update customer details (optional based on use case)
-	UpdateCustomer(customerID uuid.UUID, updatedData *Customer) error
+	UpdateCustomer(ctx context.Context, customerID uuid.UUID, updatedData *Customer) error
 
 	// DeleteCustomer Delete a customer (optional, soft-delete recommended)
-	DeleteCustomer(customerID uuid.UUID) error
+	DeleteCustomer(ctx context.Context, customerID uuid.UUID) error
 }
 
 type SQLRepository struct {

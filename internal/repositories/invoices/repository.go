@@ -1,19 +1,20 @@
 package invoices
 
 import (
+	"context"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 type Repository interface {
-	CreateInvoice(invoice *Invoice) error
-	GetInvoiceByID(id uuid.UUID) (*Invoice, error)
-	UpdateInvoice(invoice *Invoice) error
-	DeleteInvoice(id uuid.UUID) error
-	ListInvoices(customerID uuid.UUID, limit, offset int) ([]Invoice, error)
-	GetInvoicesByStatus(status string, limit, offset int) ([]Invoice, error)
-	GetTotalInvoiceAmount(customerID uuid.UUID) (float64, error)
-	ListOverdueInvoices(limit, offset int) ([]Invoice, error)
+	CreateInvoice(ctx context.Context, invoice *Invoice) error
+	GetInvoiceByID(ctx context.Context, id uuid.UUID) (*Invoice, error)
+	UpdateInvoice(ctx context.Context, invoice *Invoice) error
+	DeleteInvoice(ctx context.Context, id uuid.UUID) error
+	ListInvoices(ctx context.Context, customerID uuid.UUID, limit, offset int) ([]Invoice, error)
+	GetInvoicesByStatus(ctx context.Context, status string, limit, offset int) ([]Invoice, error)
+	GetTotalInvoiceAmount(ctx context.Context, customerID uuid.UUID) (float64, error)
+	ListOverdueInvoices(ctx context.Context, limit, offset int) ([]Invoice, error)
 }
 
 type SQLRepository struct {

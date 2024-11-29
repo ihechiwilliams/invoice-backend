@@ -1,11 +1,13 @@
 package api
 
 import (
+	"net/http"
+
 	"github.com/go-chi/chi/v5"
 	openapi_types "github.com/oapi-codegen/runtime/types"
+
 	"invoice-backend/internal/api/server"
 	v1 "invoice-backend/internal/api/v1"
-	"net/http"
 )
 
 func InitRoutes(router *chi.Mux, si *Routes) {

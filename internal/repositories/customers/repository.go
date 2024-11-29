@@ -27,6 +27,31 @@ type SQLRepository struct {
 	db *gorm.DB
 }
 
+func (S SQLRepository) CreateCustomer(ctx context.Context, customer *Customer) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (S SQLRepository) ListCustomers(ctx context.Context, filters *CustomerDBFilter) ([]*Customer, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (S SQLRepository) GetCustomerByID(ctx context.Context, customerID uuid.UUID) (*Customer, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (S SQLRepository) UpdateCustomer(ctx context.Context, customerID uuid.UUID, updatedData *Customer) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (S SQLRepository) DeleteCustomer(ctx context.Context, customerID uuid.UUID) error {
+	//TODO implement me
+	panic("implement me")
+}
+
 func NewSQLRepository(db *gorm.DB) *SQLRepository {
 	return &SQLRepository{
 		db: db,

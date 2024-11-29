@@ -26,6 +26,31 @@ type SQLRepository struct {
 	db *gorm.DB
 }
 
+func (S SQLRepository) CreateActivity(ctx context.Context, activity *Activity) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (S SQLRepository) ListRecentActivities(ctx context.Context, limit, offset int) ([]Activity, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (S SQLRepository) GetActivitiesByInvoiceID(ctx context.Context, invoiceID uuid.UUID) ([]Activity, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (S SQLRepository) SearchActivitiesByType(ctx context.Context, activityType string, limit, offset int) ([]Activity, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (S SQLRepository) DeleteActivity(ctx context.Context, id uuid.UUID) error {
+	//TODO implement me
+	panic("implement me")
+}
+
 func NewSQLRepository(db *gorm.DB) *SQLRepository {
 	return &SQLRepository{
 		db: db,

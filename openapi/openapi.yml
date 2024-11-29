@@ -1,0 +1,284 @@
+openapi: 3.1.0
+info:
+  title: Invoice Management API
+  contact
+  version: 1.0.0
+  description: API for managing invoices, customers, and activities.
+
+servers:
+  - url: https://api.invoiceapp.com
+    description: Production server
+  - url: https://staging.api.invoiceapp.com
+    description: Staging server
+
+tags:
+  - name: Invoices
+    description: Operations related to invoices
+  - name: Customers
+    description: Manage customer data
+  - name: Activities
+    description: Track invoice activities
+
+paths:
+  /v1/invoices:
+    get:
+      summary: List all invoices
+      tags:
+        - Invoices
+      parameters:
+        - name: status
+          in: query
+          description: Filter invoices by status (paid, overdue, draft, etc.)
+          required: false
+          schema:
+            type: string
+        - name: date
+          in: query
+          description: Filter invoices by date range
+          required: false
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: A list of invoices
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Invoice'
+
+    post:
+      summary: Create a new invoice
+      tags:
+        - Invoices
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewInvoice'
+      responses:
+        '201':
+          description: Invoice created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invoice'
+
+  /invoices/{invoiceId}:
+    get:
+      summary: Get details of a specific invoice
+      tags:
+        - Invoices
+      parameters:
+        - name: invoiceId
+          in: path
+          required: true
+          description: ID of the invoice
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Invoice details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invoice'
+
+    patch:
+      summary: Update an invoice
+      tags:
+        - Invoices
+      parameters:
+        - name: invoiceId
+          in: path
+          required: true
+          description: ID of the invoice
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateInvoice'
+      responses:
+        '200':
+          description: Invoice updated successfully
+
+    delete:
+      summary: Delete an invoice
+      tags:
+        - Invoices
+      parameters:
+        - name: invoiceId
+          in: path
+          required: true
+          description: ID of the invoice
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Invoice deleted successfully
+
+  /customers:
+    get:
+      summary: List all customers
+      tags:
+        - Customers
+      responses:
+        '200':
+          description: A list of customers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Customer'
+
+    post:
+      summary: Create a new customer
+      tags:
+        - Customers
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewCustomer'
+      responses:
+        '201':
+          description: Customer created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+
+  /activities:
+    get:
+      summary: Get recent activities
+      tags:
+        - Activities
+      responses:
+        '200':
+          description: A list of recent activities
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Activity'
+
+components:
+  schemas:
+    InvoicesResponse:
+      description: Example response
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: '#/components/schemas/InvoiceData'
+            required:
+              - data
+    InvoiceData:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        sender:
+          type: string
+        customer:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Item'
+        status:
+          type: string
+          enum: [paid, overdue, draft]
+        dueDate:
+          type: string
+          format: date
+        totalAmount:
+          type: number
+          format: float
+
+    NewInvoice:
+      type: object
+      properties:
+        sender:
+          type: string
+        customer:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Item'
+        dueDate:
+          type: string
+          format: date
+
+    UpdateInvoice:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [paid, overdue, draft]
+        dueDate:
+          type: string
+          format: date
+
+    Item:
+      type: object
+      properties:
+        description:
+          type: string
+        quantity:
+          type: integer
+        price:
+          type: number
+          format: float
+
+    Customer:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+
+    NewCustomer:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+
+    Activity:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+        description:
+          type: string
+        createdAt:
+          type: string
+          format: date-time

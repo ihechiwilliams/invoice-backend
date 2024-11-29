@@ -1,0 +1,5 @@
+package: invoice-backend
+generate:
+  client: true
+  models: true
+output: openapi/go/invoice-backend/client.gen.go

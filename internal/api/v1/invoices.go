@@ -1,12 +1,15 @@
 package v1
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"invoice-backend/internal/constants"
 	"net/http"
+	"strconv"
+	"strings"
 
 	"invoice-backend/internal/api/server"
-	"invoice-backend/internal/constants"
 	"invoice-backend/internal/repositories/invoices"
 	"invoice-backend/internal/repositories/invoices/enums"
 	"invoice-backend/internal/repositories/invoicesitems"
@@ -76,6 +79,62 @@ func (a *API) V1GetInvoices(w http.ResponseWriter, r *http.Request, reqBody serv
 	}))
 }
 
+func (a *API) V1CreateInvoice(w http.ResponseWriter, r *http.Request) {
+	reqBody := new(server.V1CreateInvoiceJSONRequestBody)
+
+	err := render.DecodeJSON(r.Body, reqBody)
+	if err != nil {
+		server.BadRequestError(err, w, r)
+
+		return
+	}
+
+	invoiceData := reqBody.Data
+	invoiceNum, err := a.invoicesHandler.GenerateNextInvoiceNumber(r.Context())
+	if err != nil {
+		server.BadRequestError(err, w, r)
+		return
+	}
+	newInvoice := &invoices.DBInvoice{
+		ID:            uuid.New(),
+		UserID:        lo.FromPtr(invoiceData.UserId),
+		CustomerID:    lo.FromPtr(invoiceData.CustomerId),
+		InvoiceNumber: invoiceNum,
+		DueDate:       invoiceData.DueDate.Time,
+		Status:        enums.InvoiceStatusDRAFT,
+	}
+
+	var totalAmount float64
+
+	newInvoice.Items = lo.Map(invoiceData.Items, func(item server.Item, _ int) *invoicesitems.InvoiceItem {
+		totalPrice := float64(float32(lo.FromPtr(item.Quantity)) * lo.FromPtr(item.UnitPrice))
+
+		totalAmount += totalPrice
+
+		return &invoicesitems.InvoiceItem{
+			ID:          uuid.New(),
+			Description: lo.FromPtr(item.Description),
+			InvoiceID:   newInvoice.ID,
+			Quantity:    lo.FromPtr(item.Quantity),
+			UnitPrice:   float64(lo.FromPtr(item.UnitPrice)),
+			TotalPrice:  totalPrice,
+		}
+	})
+
+	newInvoice.TotalAmount = totalAmount
+
+	result, err := a.invoicesHandler.invoicesRepo.CreateInvoice(r.Context(), newInvoice)
+	if err != nil {
+		server.ProcessingError(err, w, r)
+
+		return
+	}
+
+	response := serializeInvoiceToAPIResponse(result)
+	render.Status(r, http.StatusCreated)
+	render.JSON(w, r, response)
+}
+
 func serializeInvoiceToAPIResponse(invoice *invoices.Invoice) server.InvoiceResponseData {
 	items := lo.Map(invoice.Items, func(items *invoicesitems.InvoiceItem, _ int) server.Item {
 		return serializeInvoiceItemsToAPIResponse(items)
@@ -87,7 +146,7 @@ func serializeInvoiceToAPIResponse(invoice *invoices.Invoice) server.InvoiceResp
 		Items:       items,
 		Sender:      "nil",
 		Status:      server.InvoiceStatusEnum(invoice.Status),
-		TotalAmount: float32(invoice.TotalAmount),
+		TotalAmount: lo.ToPtr(float32(invoice.TotalAmount)),
 	}
 }
 
@@ -182,4 +241,27 @@ func getDefaultPageSize() *int {
 
 func getDefaultPage() *int {
 	return lo.ToPtr(constants.DefaultPageNumber)
+}
+
+func (h *InvoiceHandler) GenerateNextInvoiceNumber(ctx context.Context) (string, error) {
+	lastInvoice, err := h.invoicesRepo.FetchLastInvoice(ctx)
+	if err != nil {
+		return "", fmt.Errorf("failed to fetch last invoice: %w", err)
+	}
+
+	// Default to "INV0000001" if no invoices exist
+	if lastInvoice == nil || lastInvoice.InvoiceNumber == "" {
+		return "INV0000001", nil
+	}
+
+	// Extract the numeric part of the last invoice number
+	lastNumber := strings.TrimPrefix(lastInvoice.InvoiceNumber, "INV")
+	parsedNumber, parseErr := strconv.Atoi(lastNumber)
+	if parseErr != nil {
+		return "", fmt.Errorf("invalid invoice number format: %w", parseErr)
+	}
+
+	// Increment the numeric part and format it with leading zeros
+	nextNumber := fmt.Sprintf("INV%07d", parsedNumber+1)
+	return nextNumber, nil
 }

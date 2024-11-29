@@ -326,15 +326,20 @@ components:
     InvoiceRequestBodyData:
       type: object
       properties:
-        sender:
+        user_id:
           type: string
-        customer:
+          format: uuid
+        customer_id:
           type: string
+          format: uuid
         items:
           type: array
           items:
             $ref: '#/components/schemas/Item'
-        dueDate:
+        due_date:
+          type: string
+          format: date
+        issue_date:
           type: string
           format: date
       required:
@@ -385,10 +390,10 @@ components:
             $ref: '#/components/schemas/Item'
         status:
           $ref: '#/components/schemas/InvoiceStatusEnum'
-        dueDate:
+        due_date:
           type: string
           format: date
-        totalAmount:
+        total_amount:
           type: number
           format: float
       required:
@@ -397,8 +402,8 @@ components:
         - customer
         - items
         - status
-        - dueDate
-        - totalAmount
+        - due_date
+        - total_Amount
     UpdateInvoice:
       type: object
       properties:

@@ -22,6 +22,7 @@ type Repository interface {
 	ListInvoices(ctx context.Context, filters *InvoiceDBFilter, pagination shared.Pagination) ([]*Invoice, error)
 	GetTotalInvoiceAmount(ctx context.Context, customerID uuid.UUID) (float64, error)
 	ListOverdueInvoices(ctx context.Context, limit, offset int) ([]Invoice, error)
+	FetchLastInvoice(ctx context.Context) (*Invoice, error)
 }
 
 type SQLRepository struct {
@@ -108,6 +109,22 @@ func (s *SQLRepository) ListOverdueInvoices(ctx context.Context, limit, offset i
 		Offset(offset).
 		Find(&invoices).Error
 	return invoices, err
+}
+
+func (s *SQLRepository) FetchLastInvoice(ctx context.Context) (*Invoice, error) {
+	var invoice Invoice
+	err := s.db.WithContext(ctx).
+		Order("created_at DESC").
+		First(&invoice).Error
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil // No invoice found
+		}
+		return nil, err
+	}
+
+	return &invoice, nil
 }
 
 func NewSQLRepository(db *gorm.DB) *SQLRepository {

@@ -10,6 +10,7 @@ import (
 type DBInvoice struct {
 	ID            uuid.UUID                    `json:"id" gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
 	CustomerID    uuid.UUID                    `json:"customer_id" gorm:"not null"`
+	UserID        uuid.UUID                    `json:"user_id" gorm:"not null"`
 	InvoiceNumber string                       `json:"invoice_number" gorm:"not null;unique"`
 	Status        enums.InvoiceStatus          `json:"status" gorm:"not null"` // e.g., Paid, Overdue, Draft
 	TotalAmount   float64                      `json:"total_amount" gorm:"not null"`
@@ -23,6 +24,7 @@ type DBInvoice struct {
 type Invoice struct {
 	ID            uuid.UUID                    `json:"id"`
 	CustomerID    uuid.UUID                    `json:"customer_id"`
+	UserID        uuid.UUID                    `json:"user_id"`
 	InvoiceNumber string                       `json:"invoice_number"`
 	Status        enums.InvoiceStatus          `json:"status"` // e.g., Paid, Overdue, Draft
 	TotalAmount   float64                      `json:"total_amount"`

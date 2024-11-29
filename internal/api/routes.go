@@ -39,8 +39,7 @@ func (a Routes) V1CreateCustomer(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a Routes) V1GetInvoices(w http.ResponseWriter, r *http.Request, params server.V1GetInvoicesParams) {
-	//TODO implement me
-	panic("implement me")
+	a.v1.V1GetInvoices(w, r, params)
 }
 
 func (a Routes) V1CreateInvoice(w http.ResponseWriter, r *http.Request) {

@@ -82,6 +82,7 @@ func NewInjector(serviceName string, cfg *Config) *do.Injector {
 	do.Provide(injector, func(i *do.Injector) (*v1.InvoiceHandler, error) {
 		return v1.NewInvoiceHandler(
 			do.MustInvoke[*invoices.SQLRepository](i),
+			do.MustInvoke[*invoicesitems.SQLRepository](i),
 		), nil
 	})
 

@@ -33,6 +33,16 @@ paths:
             properties:
               filters:
                 $ref: '#/components/schemas/InvoiceFilters'
+              page_size:
+                type: integer
+                default: 25
+                minimum: 1
+                description: The page size
+              page:
+                type: integer
+                default: 1
+                minimum: 1
+                description: The page number
       responses:
         '200':
           $ref: '#/components/responses/InvoicesResponse'
@@ -335,10 +345,30 @@ components:
     InvoiceFilters:
       type: object
       properties:
+        id:
+          type: array
+          items:
+            type: string
+            example: aac84fa0-3ce1-4a7b-83f3-2ed463fcd0c9
+        user_id:
+          type: array
+          items:
+            type: string
+            example: aac84fa0-3ce1-4a7b-83f3-2ed463fcd0c2
         customer_id:
           type: array
           items:
             type: string
+            example: aac84fa0-3ce1-4a7b-83f3-2ed463fcd0c1
+        invoice_number:
+          type: array
+          items:
+            type: string
+            example: 1293456789
+        status:
+          type: array
+          items:
+            $ref: '#/components/schemas/InvoiceStatusEnum'
     InvoiceResponseData:
       type: object
       properties:
@@ -354,14 +384,21 @@ components:
           items:
             $ref: '#/components/schemas/Item'
         status:
-          type: string
-          enum: [paid, overdue, draft]
+          $ref: '#/components/schemas/InvoiceStatusEnum'
         dueDate:
           type: string
           format: date
         totalAmount:
           type: number
           format: float
+      required:
+        - id
+        - sender
+        - customer
+        - items
+        - status
+        - dueDate
+        - totalAmount
     UpdateInvoice:
       type: object
       properties:
@@ -374,11 +411,20 @@ components:
     Item:
       type: object
       properties:
+        id:
+          type: string
+          format: uuid
+        invoice_id:
+          type: string
+          format: uuid
         description:
           type: string
         quantity:
           type: integer
-        price:
+        unit_price:
+          type: number
+          format: float
+        total_price:
           type: number
           format: float
     CustomerFilters:
@@ -427,6 +473,14 @@ components:
         createdAt:
           type: string
           format: date-time
+    InvoiceStatusEnum:
+      type: string
+      enum:
+        - PENDING_PAYMENT
+        - OVERDUE
+        - DRAFT
+        - PAID
+      title: InvoiceStatus
   responses:
     InvoiceResponse:
       description: Example response

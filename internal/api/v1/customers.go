@@ -2,12 +2,13 @@ package v1
 
 import (
 	"context"
-	"github.com/go-chi/render"
-	"github.com/samber/lo"
-	"invoice-backend/internal/api/server"
 	"net/http"
 
+	"invoice-backend/internal/api/server"
 	"invoice-backend/internal/repositories/customers"
+
+	"github.com/go-chi/render"
+	"github.com/samber/lo"
 )
 
 type CustomersHandler struct {

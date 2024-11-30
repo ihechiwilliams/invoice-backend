@@ -16,7 +16,7 @@ type DBInvoice struct {
 	TotalAmount   float64                      `json:"total_amount" gorm:"not null"`
 	DueDate       time.Time                    `json:"due_date" gorm:"not null"`
 	IssueDate     time.Time                    `json:"issue_date" gorm:"not null"`
-	Items         []*invoicesitems.InvoiceItem `json:"items" gorm:"foreignKey:InvoiceID"` // One-to-Many relationship
+	Items         []*invoicesitems.InvoiceItem `json:"items" gorm:"foreignKey:Invoice_id"` // One-to-Many relationship
 	CreatedAt     time.Time                    `json:"created_at" gorm:"autoCreateTime"`
 	UpdatedAt     time.Time                    `json:"updated_at" gorm:"autoUpdateTime"`
 }

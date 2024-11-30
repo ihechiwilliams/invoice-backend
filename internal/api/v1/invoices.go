@@ -40,8 +40,6 @@ func (a *API) V1GetInvoices(w http.ResponseWriter, r *http.Request, reqBody serv
 		pageSize      = reqBody.Data.PageSize
 	)
 
-	fmt.Println("reach here")
-
 	params := reqBody.Data
 
 	if params.Filters != nil {
@@ -63,8 +61,6 @@ func (a *API) V1GetInvoices(w http.ResponseWriter, r *http.Request, reqBody serv
 	}
 
 	paginationFilter := preparePagination(pageSize, page)
-	fmt.Println(paginationFilter)
-	fmt.Println("reach here")
 
 	result, err := a.invoicesHandler.invoicesRepo.ListInvoices(r.Context(), invoiceFilter, paginationFilter)
 	if err != nil {

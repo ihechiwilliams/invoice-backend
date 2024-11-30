@@ -459,12 +459,23 @@ components:
     CustomerRequestBodyData:
       type: object
       properties:
+        user_id:
+          type: string
+          format: uuid
         name:
           type: string
         email:
           type: string
         phone:
           type: string
+        address:
+          type: string
+      required:
+        - user_id
+        - name
+        - email
+        - phone
+        - address
     Activity:
       type: object
       properties:

@@ -2,10 +2,10 @@ package v1
 
 import (
 	"context"
-	"net/http"
-
+	"github.com/google/uuid"
 	"invoice-backend/internal/api/server"
 	"invoice-backend/internal/repositories/customers"
+	"net/http"
 
 	"github.com/go-chi/render"
 	"github.com/samber/lo"
@@ -49,6 +49,37 @@ func (a *API) V1GetCustomers(w http.ResponseWriter, r *http.Request, params serv
 
 	render.Status(r, http.StatusOK)
 	render.JSON(w, r, server.CustomersResponse{Data: customerList})
+}
+
+func (a *API) V1CreateCustomer(w http.ResponseWriter, r *http.Request) {
+	reqBody := new(server.V1CreateCustomerJSONRequestBody)
+
+	err := render.DecodeJSON(r.Body, reqBody)
+	if err != nil {
+		server.BadRequestError(err, w, r)
+		return
+	}
+
+	customerData := reqBody.Data
+
+	newCustomer := &customers.DBCustomer{
+		ID:      uuid.New(),
+		UserID:  customerData.UserId,
+		Name:    customerData.Name,
+		Email:   customerData.Email,
+		Phone:   customerData.Phone,
+		Address: customerData.Address,
+	}
+
+	result, err := a.customersHandler.customersRepo.CreateCustomer(r.Context(), newCustomer)
+	if err != nil {
+		server.BadRequestError(err, w, r)
+		return
+	}
+
+	response := serializeCustomerToAPIResponse(result)
+	render.Status(r, http.StatusCreated)
+	render.JSON(w, r, response)
 }
 
 func prepareCustomerFilter(filters server.CustomerFilters) *customers.CustomerDBFilter {

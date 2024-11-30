@@ -7,20 +7,15 @@ import (
 	"gorm.io/gorm"
 )
 
+const (
+	tableName = "customers"
+)
+
 type Repository interface {
-	// CreateCustomer Create a new customer
-	CreateCustomer(ctx context.Context, customer *Customer) error
-
-	// ListCustomers Retrieve all customers
+	CreateCustomer(ctx context.Context, customer *DBCustomer) (*Customer, error)
 	ListCustomers(ctx context.Context, filters *CustomerDBFilter) ([]*Customer, error)
-
-	// GetCustomerByID Retrieve a customer by ID
 	GetCustomerByID(ctx context.Context, customerID uuid.UUID) (*Customer, error)
-
-	// UpdateCustomer Update customer details (optional based on use case)
 	UpdateCustomer(ctx context.Context, customerID uuid.UUID, updatedData *Customer) error
-
-	// DeleteCustomer Delete a customer (optional, soft-delete recommended)
 	DeleteCustomer(ctx context.Context, customerID uuid.UUID) error
 }
 
@@ -28,12 +23,17 @@ type SQLRepository struct {
 	db *gorm.DB
 }
 
-func (s SQLRepository) CreateCustomer(ctx context.Context, customer *Customer) error {
+func (s SQLRepository) CreateCustomer(ctx context.Context, customer *DBCustomer) (*Customer, error) {
 	if customer.ID == uuid.Nil {
 		customer.ID = uuid.New()
 	}
 
-	return s.db.WithContext(ctx).Create(customer).Error
+	result := s.db.WithContext(ctx).Table(tableName).Create(customer)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return FromDBCustomer(customer), nil
 }
 
 func (s SQLRepository) ListCustomers(ctx context.Context, filters *CustomerDBFilter) ([]*Customer, error) {
